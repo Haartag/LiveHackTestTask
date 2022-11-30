@@ -2,15 +2,16 @@ package com.valerytimofeev.livehacktesttask.data.remote
 
 import com.valerytimofeev.livehacktesttask.data.remote.responses.LifeHackDetailsResponse
 import com.valerytimofeev.livehacktesttask.data.remote.responses.LifeHackResponse
+import com.valerytimofeev.livehacktesttask.utility.Constants.URL_POSTFIX
 import retrofit2.http.GET
-import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface LifeHackApi {
-    @GET("test_task/test.php")
+    @GET(URL_POSTFIX)
     suspend fun getCompanyList(): LifeHackResponse
 
-    @GET("test_task/{id}")
+    @GET(URL_POSTFIX)
     suspend fun getCompanyDetails(
-        @Path("id") id: Int
+        @Query("id") id: Int,
     ): LifeHackDetailsResponse
 }
