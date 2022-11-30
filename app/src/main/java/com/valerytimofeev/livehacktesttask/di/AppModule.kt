@@ -2,6 +2,7 @@ package com.valerytimofeev.livehacktesttask.di
 
 import com.google.gson.GsonBuilder
 import com.valerytimofeev.livehacktesttask.data.remote.LifeHackApi
+import com.valerytimofeev.livehacktesttask.repository.DefaultLifeHackRepository
 import com.valerytimofeev.livehacktesttask.repository.LifeHackRepository
 import com.valerytimofeev.livehacktesttask.utility.Constants.BASE_URL
 import dagger.Module
@@ -20,7 +21,7 @@ object AppModule {
     @Provides
     fun provideLifeHackRepository(
         api: LifeHackApi
-    ) = LifeHackRepository(api = api)
+    ) = DefaultLifeHackRepository(api) as LifeHackRepository
 
     @Singleton
     @Provides
