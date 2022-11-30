@@ -20,20 +20,20 @@ import org.junit.Test
 
 
 @ExperimentalCoroutinesApi
-class LoadCompanyListUseCaseTest {
+class LoadDataUseCaseTest {
 
     private val mainThreadSurrogate = newSingleThreadContext("UI thread")
 
     @get:Rule
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
-    private lateinit var loadCompanyListUseCase: LoadCompanyListUseCase
+    private lateinit var loadDataUseCase: LoadDataUseCase
     private lateinit var fakeRepository: FakeLifeHackRepository
 
     @Before
     fun setup() {
         fakeRepository = FakeLifeHackRepository()
-        loadCompanyListUseCase = LoadCompanyListUseCase(fakeRepository)
+        loadDataUseCase = LoadDataUseCase(fakeRepository)
         Dispatchers.setMain(mainThreadSurrogate)
     }
 
@@ -45,14 +45,14 @@ class LoadCompanyListUseCaseTest {
 
     @Test
     fun `load company list, returns loading status as first`() = runTest {
-        val result = loadCompanyListUseCase.loadCompanyList().first()
+        val result = loadDataUseCase.loadCompanyList().first()
 
         assertThat(result).isEqualTo(Resource(Status.LOADING, null, null))
     }
 
     @Test
     fun `load company list, returns success`() = runTest {
-        val flow = loadCompanyListUseCase.loadCompanyList()
+        val flow = loadDataUseCase.loadCompanyList()
         val result = flow.first { it.status != Status.LOADING }
 
         assertThat(result.status).isEqualTo(Status.SUCCESS)
@@ -63,12 +63,37 @@ class LoadCompanyListUseCaseTest {
     fun `load company list, returns error`() = runTest {
         fakeRepository.shouldReturnError(true)
 
-        val flow = loadCompanyListUseCase.loadCompanyList()
+        val flow = loadDataUseCase.loadCompanyList()
         val result = flow.first { it.status != Status.LOADING }
 
         assertThat(result.status).isEqualTo(Status.ERROR)
         assertThat(result.message).isEqualTo("Error")
     }
 
+    @Test
+    fun `load details, returns loading status as first`() = runTest {
+        val result = loadDataUseCase.loadCompanyDetails(1).first()
 
+        assertThat(result).isEqualTo(Resource(Status.LOADING, null, null))
+    }
+
+    @Test
+    fun `load details, returns success`() = runTest {
+        val flow = loadDataUseCase.loadCompanyDetails(1)
+        val result = flow.first { it.status != Status.LOADING }
+
+        assertThat(result.status).isEqualTo(Status.SUCCESS)
+        assertThat(result.data?.get(0)?.name).isEqualTo("Company name")
+    }
+
+    @Test
+    fun `load details, returns error`() = runTest {
+        fakeRepository.shouldReturnError(true)
+
+        val flow = loadDataUseCase.loadCompanyDetails(1)
+        val result = flow.first { it.status != Status.LOADING }
+
+        assertThat(result.status).isEqualTo(Status.ERROR)
+        assertThat(result.message).isEqualTo("Error")
+    }
 }
