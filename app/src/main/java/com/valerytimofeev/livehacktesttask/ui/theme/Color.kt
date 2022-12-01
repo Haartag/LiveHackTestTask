@@ -9,5 +9,5 @@ val Teal200 = Color(0xFF03DAC5)
 
 val Surface = Color(0xFF505050)
 val TileDefaultBackground = Color(0xFF777777)
-val LoadingAnimation = Color(0xFFDB9752)
+val LoadingAnimation = Color(0xFFDA9652)
 val LoadingAnimationLight = Color(0xFFD6BB59)
