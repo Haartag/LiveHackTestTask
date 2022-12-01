@@ -80,6 +80,9 @@ dependencies {
     implementation "com.google.android.gms:play-services-maps:18.1.0"
     implementation "com.google.maps.android:maps-compose:1.0.0"
 
+    //Accompanist
+    implementation "com.google.accompanist:accompanist-systemuicontroller:0.27.0"
+
     //Test
     testImplementation 'junit:junit:4.13.2'
     testImplementation "com.google.truth:truth:1.0.1"

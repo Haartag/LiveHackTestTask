@@ -5,6 +5,8 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 private val DarkColorPalette = darkColors(
     primary = Purple200,
@@ -37,6 +39,14 @@ fun LiveHackTestTaskTheme(
     } else {
         LightColorPalette
     }
+    //System bar
+    val systemUiController = rememberSystemUiController()
+    systemUiController.setNavigationBarColor(
+        color = Color.Black
+    )
+    systemUiController.setStatusBarColor(
+        color = Surface
+    )
 
     MaterialTheme(
         colors = colors,
