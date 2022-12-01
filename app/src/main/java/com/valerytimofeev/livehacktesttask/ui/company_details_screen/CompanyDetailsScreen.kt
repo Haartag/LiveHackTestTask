@@ -1,7 +1,6 @@
 package com.valerytimofeev.livehacktesttask.ui.company_details_screen
 
 import android.telephony.PhoneNumberUtils
-import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.CircularProgressIndicator
@@ -25,8 +24,9 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
-import com.valerytimofeev.livehacktesttask.R.drawable.big_image_placeholder
 import com.valerytimofeev.livehacktesttask.model.TextWithIcon
+import com.valerytimofeev.livehacktesttask.ui.common_composables.DetailsError
+import com.valerytimofeev.livehacktesttask.ui.common_composables.ImageError
 import com.valerytimofeev.livehacktesttask.ui.common_composables.LoadingNow
 import com.valerytimofeev.livehacktesttask.utility.Status
 
@@ -55,7 +55,7 @@ fun CompanyDetailsScreen(
             )
         }
         Status.ERROR -> {
-            Log.d("TestTag", "CompanyDetailsScreen: Error ${stateFlow.value.message}")
+            DetailsError(navController = navController)
         }
     }
 }
@@ -124,7 +124,7 @@ fun ImageBox(
         )
     }
     if (painterState is AsyncImagePainter.State.Error) {
-        ImageError()
+        ImageError(0.25f)
     } else {
         Image(
             painter = painter,
@@ -136,26 +136,6 @@ fun ImageBox(
         )
     }
 
-}
-
-/**
- * Placeholder (if the image cannot be loaded, but rest of data can be)
- */
-@Composable
-fun ImageError() {
-    val painter = rememberAsyncImagePainter(
-        ImageRequest.Builder(LocalContext.current)
-            .data(data = big_image_placeholder)
-            .build()
-    )
-    Image(
-        painter = painter,
-        contentDescription = "Can`t load image placeholder",
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(0.25f),
-        contentScale = ContentScale.Crop
-    )
 }
 
 /**

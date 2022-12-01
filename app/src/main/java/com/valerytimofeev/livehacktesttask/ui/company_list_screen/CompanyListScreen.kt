@@ -25,6 +25,8 @@ import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.valerytimofeev.livehacktesttask.data.remote.responses.LifeHackResponseItem
+import com.valerytimofeev.livehacktesttask.ui.common_composables.CompanyListError
+import com.valerytimofeev.livehacktesttask.ui.common_composables.ImageError
 import com.valerytimofeev.livehacktesttask.ui.common_composables.LoadingNow
 import com.valerytimofeev.livehacktesttask.ui.theme.TileDefaultBackground
 import com.valerytimofeev.livehacktesttask.utility.Status
@@ -50,10 +52,9 @@ fun CompanyListScreen(
             )
         }
         Status.ERROR -> {
-            /*TODO*/
+            CompanyListError()
         }
     }
-
 }
 
 /**
@@ -138,13 +139,17 @@ fun CompanyTile(
             )
         }
         Box(modifier = Modifier.fillMaxSize()) {
-            Image(
-                painter = painter,
-                contentDescription = "", /*TODO*/
-                modifier = Modifier
-                    .fillMaxWidth(),
-                contentScale = ContentScale.Crop
-            )
+            if (painterState is AsyncImagePainter.State.Error) {
+                ImageError(1.0f)
+            } else {
+                Image(
+                    painter = painter,
+                    contentDescription = name,
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    contentScale = ContentScale.Crop
+                )
+            }
             Box(
                 modifier = Modifier
                     .fillMaxSize()

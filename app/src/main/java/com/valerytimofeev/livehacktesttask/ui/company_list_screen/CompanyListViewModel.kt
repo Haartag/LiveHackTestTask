@@ -34,6 +34,10 @@ class CompanyListViewModel @Inject constructor(
     val remoteData: StateFlow<Resource<LifeHackResponse>> = _remoteData
 
     init {
+        loadCompanyList()
+    }
+
+    fun loadCompanyList() {
         viewModelScope.launch {
             loadData.loadCompanyList().collect {
                 _remoteData.value = it
