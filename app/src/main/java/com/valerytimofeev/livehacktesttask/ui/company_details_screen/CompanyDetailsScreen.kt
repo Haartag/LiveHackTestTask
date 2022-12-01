@@ -3,7 +3,10 @@ package com.valerytimofeev.livehacktesttask.ui.company_details_screen
 import android.telephony.PhoneNumberUtils
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,7 +56,8 @@ fun CompanyDetailsScreen(
                 longText = stateFlow.value.data!![0].description,
                 latLng = LatLng(stateFlow.value.data!![0].lat, stateFlow.value.data!![0].lon),
                 background = tileColor,
-                textWithIconList = viewModel.getTextWithIconList(stateFlow.value.data!!)
+                textWithIconList = viewModel.getTextWithIconList(stateFlow.value.data!!),
+                navController = navController
             )
         }
         Status.ERROR -> {
@@ -72,6 +76,7 @@ fun DetailsTile(
     latLng: LatLng,
     background: Color,
     textWithIconList: List<TextWithIcon>,
+    navController: NavController,
     viewModel: CompanyDetailsViewModel = hiltViewModel()
 ) {
     Box(
@@ -84,7 +89,9 @@ fun DetailsTile(
 
         Column {
             ImageBox(
+                name = name,
                 imageUrl = viewModel.makeUrlForImg(),
+                navController = navController
             )
             Box(
                 modifier = Modifier
@@ -109,7 +116,9 @@ fun DetailsTile(
  */
 @Composable
 fun ImageBox(
+    name: String,
     imageUrl: String,
+    navController: NavController
 ) {
     val painter =
         rememberAsyncImagePainter(
@@ -130,16 +139,39 @@ fun ImageBox(
     if (painterState is AsyncImagePainter.State.Error) {
         ImageError(0.25f)
     } else {
-        Image(
-            painter = painter,
-            contentDescription = "", /*TODO*/
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.25f),
-            contentScale = ContentScale.Crop
-        )
-    }
+        Box {
+            Image(
+                painter = painter,
+                contentDescription = name,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.25f),
+                contentScale = ContentScale.Crop
+            )
+            OutlinedButton(
+                onClick = { navController.popBackStack() },
+                shape = CircleShape,
+                modifier = Modifier
+                    .size(50.dp),
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent),
+                contentPadding = PaddingValues(0.dp),
+            ){
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(color = Color.Gray.copy(0.3f))
+                ) {
+                    Icon(
+                        Icons.Default.ArrowBack,
+                        "Back button",
+                        modifier = Modifier.fillMaxSize(),
+                        tint = Color.White
+                    )
+                }
 
+            }
+        }
+    }
 }
 
 /**
@@ -190,8 +222,8 @@ fun LinksBox(
     val mapCanBeShowed by remember {
         mutableStateOf(
             latLng.latitude != 0.0
-                && latLng.longitude != 0.0
-                && viewModel.checkGooglePlayServices(context)
+                    && latLng.longitude != 0.0
+                    && viewModel.checkGooglePlayServices(context)
         )
     }
 
