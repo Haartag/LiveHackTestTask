@@ -1,10 +1,10 @@
 package com.valerytimofeev.livehacktesttask.usecase
 
 import android.telephony.PhoneNumberUtils
-import android.util.Patterns
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Phone
+import androidx.core.util.PatternsCompat
 import com.valerytimofeev.livehacktesttask.data.remote.responses.LifeHackDetailsResponse
 import com.valerytimofeev.livehacktesttask.model.TextWithIcon
 
@@ -12,10 +12,10 @@ import com.valerytimofeev.livehacktesttask.model.TextWithIcon
 class MakeTextsWithIconUseCase {
     operator fun invoke(response: LifeHackDetailsResponse): List<TextWithIcon> {
         val phone = response[0].phone.fixPhone()
+        println(phone)
         val www = response[0].www
 
         val outputList = mutableListOf<TextWithIcon>()
-
         if (PhoneNumberUtils.isGlobalPhoneNumber(phone)) outputList.add(
             TextWithIcon(
                 phone,
@@ -24,7 +24,7 @@ class MakeTextsWithIconUseCase {
                 "Phone icon"
             )
         )
-        if (Patterns.WEB_URL.matcher(www).matches()) outputList.add(
+        if (PatternsCompat.WEB_URL.matcher(www).matches()) outputList.add(
             TextWithIcon(
                 www,
                 Icons.Default.Info,
