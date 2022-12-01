@@ -129,17 +129,17 @@ fun ImageBox(
 
     val painterState = painter.state
 
-    if (painterState is AsyncImagePainter.State.Loading) {
-        CircularProgressIndicator(
-            color = MaterialTheme.colors.primary,
-            modifier = Modifier
-                .scale(0.5f)
-        )
-    }
-    if (painterState is AsyncImagePainter.State.Error) {
-        ImageError(0.25f)
-    } else {
-        Box {
+    Box {
+        if (painterState is AsyncImagePainter.State.Loading) {
+            CircularProgressIndicator(
+                color = MaterialTheme.colors.primary,
+                modifier = Modifier
+                    .scale(0.5f)
+            )
+        }
+        if (painterState is AsyncImagePainter.State.Error) {
+            ImageError(0.25f)
+        } else {
             Image(
                 painter = painter,
                 contentDescription = name,
@@ -148,28 +148,29 @@ fun ImageBox(
                     .fillMaxHeight(0.25f),
                 contentScale = ContentScale.Crop
             )
-            OutlinedButton(
-                onClick = { navController.popBackStack() },
-                shape = CircleShape,
+        }
+        OutlinedButton(
+            onClick = { navController.popBackStack() },
+            shape = CircleShape,
+            modifier = Modifier
+                .size(50.dp)
+                .padding(4.dp),
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent),
+            contentPadding = PaddingValues(0.dp),
+        ) {
+            Box(
                 modifier = Modifier
-                    .size(50.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent),
-                contentPadding = PaddingValues(0.dp),
-            ){
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(color = Color.Gray.copy(0.3f))
-                ) {
-                    Icon(
-                        Icons.Default.ArrowBack,
-                        "Back button",
-                        modifier = Modifier.fillMaxSize(),
-                        tint = Color.White
-                    )
-                }
-
+                    .fillMaxSize()
+                    .background(color = Color.Gray.copy(0.3f))
+            ) {
+                Icon(
+                    Icons.Default.ArrowBack,
+                    "Back button",
+                    modifier = Modifier.fillMaxSize(),
+                    tint = Color.White
+                )
             }
+
         }
     }
 }
