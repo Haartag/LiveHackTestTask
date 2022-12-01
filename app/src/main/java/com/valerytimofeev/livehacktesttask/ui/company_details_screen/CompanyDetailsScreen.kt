@@ -4,8 +4,7 @@ import android.telephony.PhoneNumberUtils
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -177,6 +176,9 @@ fun ContentBox(
     }
 }
 
+/**
+ * Part with phone number, URL and map
+ */
 @Composable
 fun LinksBox(
     textWithIconList: List<TextWithIcon>,
@@ -185,6 +187,13 @@ fun LinksBox(
     viewModel: CompanyDetailsViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
+    val mapCanBeShowed by remember {
+        mutableStateOf(
+            latLng.latitude != 0.0
+                && latLng.longitude != 0.0
+                && viewModel.checkGooglePlayServices(context)
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -203,7 +212,7 @@ fun LinksBox(
                 }
             )
         }
-        if (latLng.latitude != 0.0 && latLng.longitude != 0.0) {
+        if (mapCanBeShowed) {
             TextWithIcon(
                 text = viewModel.mapText.value,
                 icon = viewModel.mapIcon.value,
@@ -252,7 +261,9 @@ fun TextWithIcon(
     }
 }
 
-
+/**
+ * Google map with marker
+ */
 @Composable
 fun MapBox(
     latLng: LatLng,
@@ -261,7 +272,7 @@ fun MapBox(
 ) {
     val scaffoldState = rememberScaffoldState()
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(latLng, 15f)
+        position = CameraPosition.fromLatLngZoom(latLng, 14f)
     }
 
     Scaffold(scaffoldState = scaffoldState) { padding ->

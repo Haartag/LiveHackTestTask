@@ -14,6 +14,8 @@ import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import com.valerytimofeev.livehacktesttask.data.remote.responses.LifeHackDetailsResponse
 import com.valerytimofeev.livehacktesttask.model.TextWithIcon
 import com.valerytimofeev.livehacktesttask.usecase.LoadDataUseCase
@@ -96,6 +98,9 @@ class CompanyDetailsViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Show/hide Google map
+     */
     fun mapOnClick() {
         if (isMapOpen.value) {
             mapText.value = "Показать карту"
@@ -106,6 +111,14 @@ class CompanyDetailsViewModel @Inject constructor(
             mapIcon.value = Icons.Default.KeyboardArrowUp
             isMapOpen.value = !isMapOpen.value
         }
+    }
+
+    /**
+     * Check Google Play availability, if response in not 0 hide map.
+     */
+    fun checkGooglePlayServices(context: Context): Boolean {
+        val response = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context)
+        return response == ConnectionResult.SUCCESS
     }
 
 }
