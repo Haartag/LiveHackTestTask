@@ -4,6 +4,7 @@ import com.google.gson.GsonBuilder
 import com.valerytimofeev.livehacktesttask.data.remote.LifeHackApi
 import com.valerytimofeev.livehacktesttask.repository.DefaultLifeHackRepository
 import com.valerytimofeev.livehacktesttask.repository.LifeHackRepository
+import com.valerytimofeev.livehacktesttask.usecase.MakeTextsWithIconUseCase
 import com.valerytimofeev.livehacktesttask.utility.Constants.BASE_URL
 import dagger.Module
 import dagger.Provides
@@ -36,4 +37,9 @@ object AppModule {
             .create(LifeHackApi::class.java)
     }
 
+    @Singleton
+    @Provides
+    fun provideMakeTextsWithIconUseCase(): MakeTextsWithIconUseCase {
+        return MakeTextsWithIconUseCase()
+    }
 }

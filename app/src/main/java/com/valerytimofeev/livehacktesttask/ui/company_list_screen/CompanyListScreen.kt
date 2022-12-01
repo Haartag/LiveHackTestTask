@@ -1,21 +1,29 @@
 package com.valerytimofeev.livehacktesttask.ui.company_list_screen
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImagePainter
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.valerytimofeev.livehacktesttask.data.remote.responses.LifeHackResponseItem
 import com.valerytimofeev.livehacktesttask.ui.common_composables.LoadingNow
 import com.valerytimofeev.livehacktesttask.ui.theme.TileDefaultBackground
@@ -55,16 +63,23 @@ fun CompanyListScreen(
 fun CompanyList(
     data: List<LifeHackResponseItem>,
     navController: NavController,
+    viewModel: CompanyListViewModel = hiltViewModel()
 ) {
+    val gradient = Brush.horizontalGradient(
+        colors = listOf(Color.Transparent, Color.Black)
+    )
+
     LazyColumn(
         contentPadding = PaddingValues(8.dp)
     ) {
-        items(count = data.size) {
+        items(count = data.size) { index ->
             CompanyTile(
                 modifier = Modifier.fillParentMaxHeight(0.22f),
-                name = data[it].name,
-                onClick = {
-                    navController.navigate("company_list/${data[it].id.toInt()}")
+                name = data[index].name,
+                imgUrl = viewModel.makeUrlForImg(data[index].id),
+                gradient = gradient,
+                onClick = { color ->
+                    navController.navigate("company_list/${data[index].id.toInt()}/${color.toArgb()}")
                 }
             )
         }
@@ -78,8 +93,14 @@ fun CompanyList(
 fun CompanyTile(
     modifier: Modifier,
     name: String,
-    onClick: () -> Unit
+    imgUrl: String,
+    gradient: Brush,
+    onClick: (Color) -> Unit,
+    viewModel: CompanyListViewModel = hiltViewModel()
 ) {
+    var tileColor by remember {
+        mutableStateOf(TileDefaultBackground)
+    }
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
@@ -87,11 +108,58 @@ fun CompanyTile(
             .fillMaxWidth()
             .shadow(elevation = 4.dp)
             .clickable {
-                onClick()
+                onClick(tileColor)
             }
             .background(TileDefaultBackground)
     ) {
-        Text(text = name)
+
+        val painter =
+            rememberAsyncImagePainter(
+                ImageRequest.Builder(LocalContext.current)
+                    .data(data = imgUrl)
+                    .build()
+            )
+
+        (painter.state as? AsyncImagePainter.State.Success)?.let { successState ->
+            LaunchedEffect(Unit) {
+                val drawable = successState.result.drawable
+                viewModel.calcDominantColor(drawable) { color ->
+                    tileColor = color
+                }
+            }
+        }
+
+        val painterState = painter.state
+        if (painterState is AsyncImagePainter.State.Loading) {
+            CircularProgressIndicator(
+                color = MaterialTheme.colors.primary,
+                modifier = Modifier
+                    .scale(0.5f)
+            )
+        }
+        Box(modifier = Modifier.fillMaxSize()) {
+            Image(
+                painter = painter,
+                contentDescription = "", /*TODO*/
+                modifier = Modifier
+                    .fillMaxWidth(),
+                contentScale = ContentScale.Crop
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(gradient),
+                contentAlignment = Alignment.BottomEnd
+            ) {
+                Text(
+                    text = name,
+                    color = Color.LightGray,
+                    modifier = Modifier.padding(4.dp)
+                )
+            }
+
+        }
+
     }
 }
 

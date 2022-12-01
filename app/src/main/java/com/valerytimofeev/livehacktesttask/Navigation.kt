@@ -2,6 +2,7 @@ package com.valerytimofeev.livehacktesttask
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -23,17 +24,27 @@ fun Navigation() {
             CompanyListScreen(navController = navController)
         }
         composable(
-            "company_list/{companyId}",
-            arguments = listOf(navArgument("companyId") {
-                type = NavType.IntType
-            })
+            "company_list/{companyId}/{tileColor}",
+            arguments = listOf(
+                navArgument("companyId") {
+                    type = NavType.IntType
+                },
+                navArgument("tileColor") {
+                    type = NavType.LongType
+                }
+            )
         ) {
             val companyId = remember {
                 it.arguments?.getInt("companyId")
             }
+            val tileColor = remember {
+                val color = it.arguments?.getLong("tileColor")
+                color?.let { Color(it) } ?: Color.LightGray
+            }
             CompanyDetailsScreen(
                 navController = navController,
-                companyId = companyId ?: -1
+                companyId = companyId ?: -1,
+                tileColor = tileColor
             )
         }
 
