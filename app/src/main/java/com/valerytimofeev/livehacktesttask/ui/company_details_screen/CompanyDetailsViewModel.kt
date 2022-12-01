@@ -3,6 +3,10 @@ package com.valerytimofeev.livehacktesttask.ui.company_details_screen
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.content.ContextCompat.startActivity
@@ -38,6 +42,10 @@ class CompanyDetailsViewModel @Inject constructor(
         MutableStateFlow(Resource.success(LifeHackDetailsResponse()))
     val remoteData: StateFlow<Resource<LifeHackDetailsResponse>> = _remoteData
 
+    val mapText = mutableStateOf("Показать карту")
+    val mapIcon = mutableStateOf(Icons.Default.KeyboardArrowDown)
+    val isMapOpen = mutableStateOf(false)
+
     init {
         viewModelScope.launch {
             loadData.loadCompanyDetails(currentCompanyId).collect {
@@ -45,6 +53,8 @@ class CompanyDetailsViewModel @Inject constructor(
             }
         }
     }
+
+    val isMapLoaded = mutableStateOf(false)
 
     fun makeUrlForImg(): String {
         return "$IMG_URL_TEMPLATE$currentCompanyId.jpg"
@@ -83,6 +93,18 @@ class CompanyDetailsViewModel @Inject constructor(
             in 0.0..0.1 -> 0.7f
             in 0.65..1.0 -> 0.0f
             else -> 0.4f
+        }
+    }
+
+    fun mapOnClick() {
+        if (isMapOpen.value) {
+            mapText.value = "Показать карту"
+            mapIcon.value = Icons.Default.KeyboardArrowDown
+            isMapOpen.value = !isMapOpen.value
+        } else {
+            mapText.value = "Скрыть карту"
+            mapIcon.value = Icons.Default.KeyboardArrowUp
+            isMapOpen.value = !isMapOpen.value
         }
     }
 

@@ -3,10 +3,7 @@ package com.valerytimofeev.livehacktesttask.ui.company_details_screen
 import android.telephony.PhoneNumberUtils
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -24,6 +21,11 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.rememberCameraPositionState
 import com.valerytimofeev.livehacktesttask.model.TextWithIcon
 import com.valerytimofeev.livehacktesttask.ui.common_composables.DetailsError
 import com.valerytimofeev.livehacktesttask.ui.common_composables.ImageError
@@ -50,6 +52,7 @@ fun CompanyDetailsScreen(
             DetailsTile(
                 name = stateFlow.value.data!![0].name,
                 longText = stateFlow.value.data!![0].description,
+                latLng = LatLng(stateFlow.value.data!![0].lat, stateFlow.value.data!![0].lon),
                 background = tileColor,
                 textWithIconList = viewModel.getTextWithIconList(stateFlow.value.data!!)
             )
@@ -67,6 +70,7 @@ fun CompanyDetailsScreen(
 fun DetailsTile(
     name: String,
     longText: String,
+    latLng: LatLng,
     background: Color,
     textWithIconList: List<TextWithIcon>,
     viewModel: CompanyDetailsViewModel = hiltViewModel()
@@ -87,10 +91,11 @@ fun DetailsTile(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color.White.copy(viewModel.brightenerAlpha(background)))
-            ){
+            ) {
                 ContentBox(
                     name = name,
                     longText = longText,
+                    latLng = latLng,
                     textWithIconList = textWithIconList
                 )
             }
@@ -145,6 +150,7 @@ fun ImageBox(
 fun ContentBox(
     name: String,
     longText: String,
+    latLng: LatLng,
     textWithIconList: List<TextWithIcon>
 ) {
     val scrollableState = rememberScrollState()
@@ -159,7 +165,9 @@ fun ContentBox(
             modifier = Modifier.padding(8.dp)
         )
         LinksBox(
-            textWithIconList = textWithIconList
+            textWithIconList = textWithIconList,
+            name = name,
+            latLng = latLng
         )
         Text(
             text = longText,
@@ -172,28 +180,49 @@ fun ContentBox(
 @Composable
 fun LinksBox(
     textWithIconList: List<TextWithIcon>,
+    name: String,
+    latLng: LatLng,
     viewModel: CompanyDetailsViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    Row(
+
+    Column(
         modifier = Modifier
             .padding(vertical = 8.dp)
             .padding(4.dp)
     ) {
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-            textWithIconList.forEach {
-                TextWithIcon(
-                    text = if (it.type == "Phone") {
-                        PhoneNumberUtils.formatNumber(it.text, Locale.current.region)
-                    } else it.text,
-                    icon = it.icon,
-                    description = it.contentDescription,
-                    onClick = {
-                        viewModel.makeIntent(context, it)
-                    }
-                )
+        textWithIconList.forEach {
+            TextWithIcon(
+                text = if (it.type == "Phone") {
+                    PhoneNumberUtils.formatNumber(it.text, Locale.current.region)
+                } else it.text,
+                icon = it.icon,
+                description = it.contentDescription,
+                onClick = {
+                    viewModel.makeIntent(context, it)
+                }
+            )
+        }
+        if (latLng.latitude != 0.0 && latLng.longitude != 0.0) {
+            TextWithIcon(
+                text = viewModel.mapText.value,
+                icon = viewModel.mapIcon.value,
+                description = viewModel.mapText.value,
+                onClick = {
+                    viewModel.mapOnClick()
+                }
+            )
+            if (viewModel.isMapOpen.value) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(0.35f)
+                ) {
+                    MapBox(
+                        latLng = latLng,
+                        name = name
+                    )
+                }
             }
         }
     }
@@ -220,6 +249,36 @@ fun TextWithIcon(
         )
         Spacer(modifier = Modifier.width(4.dp))
         Text(text = text)
+    }
+}
+
+
+@Composable
+fun MapBox(
+    latLng: LatLng,
+    name: String,
+    viewModel: CompanyDetailsViewModel = hiltViewModel()
+) {
+    val scaffoldState = rememberScaffoldState()
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(latLng, 15f)
+    }
+
+    Scaffold(scaffoldState = scaffoldState) { padding ->
+        GoogleMap(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize(),
+            cameraPositionState = cameraPositionState,
+            onMapLoaded = { viewModel.isMapLoaded.value = true }
+        ) {
+            if (viewModel.isMapLoaded.value) {
+                Marker(
+                    position = latLng,
+                    title = name,
+                )
+            }
+        }
     }
 }
 
