@@ -3,9 +3,7 @@ package com.valerytimofeev.livehacktesttask.ui.common_composables
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Icon
-import androidx.compose.material.OutlinedButton
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.Composable
@@ -87,8 +85,9 @@ fun ErrorBox(
                 text = "Невозможно загрузить данные.\nПроверьте подключение " +
                     "к интернету или попробуйте позднее."
             )
-            OutlinedButton(
-                onClick = { onClick() }
+            Button(
+                onClick = { onClick() },
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray)
             ) {
                 Text(
                     text = button,
